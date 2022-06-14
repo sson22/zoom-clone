@@ -18,10 +18,11 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 const server = http.createServer(app);
 //Create a Web socket server in the same server as http(on top of http server)
 const wss = new WebSocket.Server({ server });
-
+const sockets = [];
 //wss Server listens for "connection event", once the event happens handleConnection happens.
 //wss.on("conection") passes socket as argument
 wss.on("connection", (socket) => {
+  sockets.push(socket);
   console.log("Backend server connected to frontend browser ✅");
   //Send message to front end
   socket.send("Hello from server");
@@ -29,9 +30,13 @@ wss.on("connection", (socket) => {
   socket.on("close", () => {
     console.log("Disconnected from the Browser ❌");
   });
-  //Receives message from the front end
+
+  //Receives message from the front end and send it back to front end
   socket.on("message", (message) => {
-    console.log(message.toString("utf8"));
+    console.log(message);
+
+    //Send messages to all sockets
+    sockets.forEach((eachSocket) => eachSocket.send(message));
   });
 });
 server.listen(3000, handleListen);

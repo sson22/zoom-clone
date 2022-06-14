@@ -22,3 +22,12 @@ setTimeout(() => {
   //Sent message to backend server
   socket.send("Hello from the browser");
 }, 10000);
+
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const input = messageForm.querySelector("input");
+  socket.send(input.value);
+  input.value = "";
+};
+
+messageForm.addEventListener("submit", handleSubmit);
