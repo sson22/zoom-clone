@@ -1,3 +1,4 @@
+// Backend Server
 import express from "express";
 import http from "http";
 import WebSocket from "ws";
@@ -13,13 +14,24 @@ app.get("/", (req, res) => res.render("home"));
 app.get("/*", (req, res) => res.redirect("/"));
 
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
-//Create a http server from express
+//Expose a http server to access
 const server = http.createServer(app);
 //Create a Web socket server in the same server as http(on top of http server)
 const wss = new WebSocket.Server({ server });
 
-function handleConnection(socket) {
-  console.log(socket);
-}
-wss.on("connection", handleConnection);
+//wss Server listens for "connection event", once the event happens handleConnection happens.
+//wss.on("conection") passes socket as argument
+wss.on("connection", (socket) => {
+  console.log("Backend server connected to frontend browser ✅");
+  //Send message to front end
+  socket.send("Hello from server");
+  //Listens close event from the browser
+  socket.on("close", () => {
+    console.log("Disconnected from the Browser ❌");
+  });
+  //Receives message from the front end
+  socket.on("message", (message) => {
+    console.log(message.toString("utf8"));
+  });
+});
 server.listen(3000, handleListen);
